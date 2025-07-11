@@ -1,0 +1,42 @@
+version: '3.2'
+services:
+  db:
+    image: crpi-dibzp3srvk442n0r.cn-beijing.personal.cr.aliyuncs.com/diankuibi/pg:17.4_zh_CN
+    container_name: diankuibi_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pg_pass123
+    ports:
+      - "0.0.0.0:5432:5432"
+    networks:
+      - diankuibi-net
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+
+  backend:
+    image: crpi-dibzp3srvk442n0r.cn-beijing.personal.cr.aliyuncs.com/diankuibi/backend:v1.7
+    container_name: diankuibi_backend
+    restart: always
+    ports:
+      - "0.0.0.0:8080:8080"
+    networks:
+      - diankuibi-net
+    volumes:
+      - ./fileList:/fileList
+    depends_on:
+      - db
+
+  frontend:
+    image: crpi-dibzp3srvk442n0r.cn-beijing.personal.cr.aliyuncs.com/diankuibi/frontend:v1.5
+    container_name: diankuibi_frontend
+    restart: always
+    ports:
+      - "0.0.0.0:80:80"
+    networks:
+      - diankuibi-net
+
+networks:
+  diankuibi-net:
+    driver: bridge
